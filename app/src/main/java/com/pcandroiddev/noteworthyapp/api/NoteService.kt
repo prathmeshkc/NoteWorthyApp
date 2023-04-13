@@ -11,12 +11,18 @@ interface NoteService {
     @GET("/notes/")
     suspend fun getNotes(): Response<List<NoteResponse>>
 
+    @GET("/notes/sortBy")
+    suspend fun sortNotesByPriority(
+        @Query("sortBy") sortBy: String
+    ): Response<List<NoteResponse>>
+
     @Multipart
     @POST("/notes/")
     suspend fun createNote(
         @Part images: List<MultipartBody.Part> = listOf(),
         @Part("title") title: RequestBody,
-        @Part("description") description: RequestBody
+        @Part("description") description: RequestBody,
+        @Part("priority") priority: RequestBody
     ): Response<NoteResponse>
 
     @Multipart
@@ -26,7 +32,8 @@ interface NoteService {
         noteId: String,
         @Part images: List<MultipartBody.Part> = listOf(),
         @Part("title") title: RequestBody,
-        @Part("description") description: RequestBody
+        @Part("description") description: RequestBody,
+        @Part("priority") priority: RequestBody
     ): Response<NoteResponse>
 
     @DELETE("/notes/{noteId}")

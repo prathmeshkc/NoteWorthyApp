@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
@@ -16,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.pcandroiddev.noteworthyapp.MainActivity
+import com.pcandroiddev.noteworthyapp.R
 import com.pcandroiddev.noteworthyapp.adapters.ImageAdapter
 import com.pcandroiddev.noteworthyapp.databinding.FragmentNoteBinding
 import com.pcandroiddev.noteworthyapp.models.note.NoteRequest
@@ -63,6 +65,7 @@ class NoteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupDropDownArrayAdapter()
         setInitialData()
         setupRecyclerViewAdapter()
         bindHandlers()
@@ -90,6 +93,7 @@ class NoteFragment : Fragment() {
         binding.btnSubmit.setOnClickListener {
             val title = binding.txtTitle.text.toString()
             val description = binding.txtDescription.text.toString()
+            val priority = binding.actvPriority.text.toString()
             val listOfPart: MutableList<MultipartBody.Part> = mutableListOf()
             for (index in uriList.indices) {
                 listOfPart.add(index, prepareFilePart(uriList[index], index))
@@ -98,8 +102,12 @@ class NoteFragment : Fragment() {
             val titleRequestBody = title.toRequestBody("multipart/form-data".toMediaTypeOrNull())
             val descRequestBody =
                 description.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+            val priorityRequestBody =
+                priority.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
             Log.d("NoteFragment", "title: $title")
             Log.d("NoteFragment", "description: $description")
+            Log.d("NoteFragment", "priority: $priority")
 
 
             if (note != null) {
@@ -108,7 +116,8 @@ class NoteFragment : Fragment() {
                     noteRequest = NoteRequest(
                         images = listOfPart.toList(),
                         title = titleRequestBody,
-                        description = descRequestBody
+                        description = descRequestBody,
+                        priority = priorityRequestBody
                     )
                 )
             } else {
@@ -116,7 +125,8 @@ class NoteFragment : Fragment() {
                     noteRequest = NoteRequest(
                         images = listOfPart.toList(),
                         title = titleRequestBody,
-                        description = descRequestBody
+                        description = descRequestBody,
+                        priority = priorityRequestBody
                     )
                 )
 
@@ -147,12 +157,14 @@ class NoteFragment : Fragment() {
         val jsonNote = arguments?.getString("note")
         if (jsonNote != null) {
             note = Gson().fromJson(jsonNote, NoteResponse::class.java)
-            note?.let {
+            note?.let { noteResponse ->
                 val listOfImageUrls: MutableList<Uri> = mutableListOf()
-                binding.txtTitle.setText(it.title)
-                binding.txtDescription.setText(it.description)
-                for (index in it.img_urls.indices) {
-                    listOfImageUrls.add(index, it.img_urls[index].public_url.toUri())
+                binding.txtTitle.setText(noteResponse.title)
+                binding.txtDescription.setText(noteResponse.description)
+                binding.actvPriority.setText(noteResponse.priority)
+
+                for (index in noteResponse.img_urls.indices) {
+                    listOfImageUrls.add(index, noteResponse.img_urls[index].public_url.toUri())
                 }
                 imageAdapter.submitList(listOfImageUrls)
             }
@@ -178,6 +190,13 @@ class NoteFragment : Fragment() {
 
         return part
 
+    }
+
+    private fun setupDropDownArrayAdapter() {
+        val priorities = resources.getStringArray(R.array.priorities)
+        val dropDownArrayAdapter =
+            ArrayAdapter(requireActivity(), R.layout.dropdown_item, priorities)
+        binding.actvPriority.setAdapter(dropDownArrayAdapter)
     }
 
     override fun onDestroyView() {

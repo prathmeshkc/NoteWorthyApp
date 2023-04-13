@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -64,8 +65,17 @@ class MainFragment : Fragment() {
             findNavController().navigate(R.id.action_mainFragment_to_noteFragment)
         }
 
+        binding.btnSortByPriority.setOnClickListener { view ->
+            showMenu(view = view, menuRes = R.menu.menu_sort_by_priority)
+        }
+
         binding.btnMenu.setOnClickListener { view ->
             showMenu(view = view, menuRes = R.menu.menu_settings)
+        }
+
+        binding.swipeToRefresh.setOnRefreshListener {
+            noteViewModel.getNotes()
+            binding.swipeToRefresh.isRefreshing = false
         }
 
         bindObservers()
@@ -119,32 +129,60 @@ class MainFragment : Fragment() {
             mPopup.javaClass
                 .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
                 .invoke(mPopup, true)
+
         } catch (e: Exception) {
             Log.e("Main", "Error showing menu icons.", e)
         } finally {
             popupMenu.show()
         }
 
-
-        popupMenu.setOnMenuItemClickListener { menuItem: MenuItem ->
-            // Respond to menu item click.
-            when (menuItem.itemId) {
-                R.id.logout -> {
-                    tokenManager.deleteToken()
-                    findNavController().navigate(R.id.action_mainFragment_to_loginFragment)
-                    true
+        if (menuRes == R.menu.menu_settings) {
+            popupMenu.setOnMenuItemClickListener { menuItem: MenuItem ->
+                // Respond to menu item click.
+                when (menuItem.itemId) {
+                    R.id.logout -> {
+                        tokenManager.deleteToken()
+                        findNavController().navigate(R.id.action_mainFragment_to_loginFragment)
+                        true
+                    }
+                    else -> {
+                        false
+                    }
                 }
-                else -> {
-                    false
+            }
+        } else if (menuRes == R.menu.menu_sort_by_priority) {
+            popupMenu.setOnMenuItemClickListener { menuItem: MenuItem ->
+                // Respond to menu item click.
+                when (menuItem.itemId) {
+                    R.id.low -> {
+                        noteViewModel.sortNotesByPriority(sortBy = "LOW")
+                        true
+                    }
+
+                    R.id.high -> {
+                        noteViewModel.sortNotesByPriority(sortBy = "HIGH")
+                        true
+                    }
+
+                    R.id.none -> {
+                        noteViewModel.getNotes()
+                        true
+                    }
+
+                    else -> {
+                        false
+                    }
                 }
             }
         }
+
+
+
         popupMenu.setOnDismissListener {
             // Respond to popup being dismissed.
             Log.d("PopupMenu", "Dismissed")
         }
-        // Show the popup menu.
-//        popupMenu.show()
+
 
     }
 

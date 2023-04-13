@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/low"
+        android:icon="@drawable/priority_color_low"
+        android:title="LOW" />
+
+    <item
+        android:id="@+id/high"
+        android:icon="@drawable/priority_color_high"
+        android:title="HIGH" />
+
+    <item
+        android:id="@+id/none"
+        android:title="NONE" />
+
+
+</menu>

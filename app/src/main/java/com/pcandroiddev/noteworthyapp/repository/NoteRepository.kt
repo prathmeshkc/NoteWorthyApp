@@ -35,6 +35,21 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
         }
     }
 
+    suspend fun sortNotesByPriority(sortBy: String) {
+        _notesLiveData.postValue(NetworkResults.Loading())
+        val response = noteService.sortNotesByPriority(sortBy = sortBy)
+        Log.d("NoteRepository", "sortNotesByPriority service called")
+        if (response.isSuccessful && response.body() != null) {
+            _notesLiveData.postValue(NetworkResults.Success(data = response.body()!!))
+        } else if (response.errorBody() != null) {
+            Log.d("NoteRepository", "sortNotesByPriority: $response")
+            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
+            _notesLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
+        } else {
+            _notesLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
+        }
+    }
+
     suspend fun createNote(
         noteRequest: NoteRequest
     ) {
@@ -43,7 +58,8 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
             noteService.createNote(
                 images = noteRequest.images,
                 title = noteRequest.title,
-                description = noteRequest.description
+                description = noteRequest.description,
+                priority = noteRequest.priority
             )
         handleResponse(response = response, message = "Note Created!")
 
@@ -58,7 +74,8 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
             noteId = noteId,
             images = noteRequest.images,
             title = noteRequest.title,
-            description = noteRequest.description
+            description = noteRequest.description,
+            priority = noteRequest.priority
         )
         handleResponse(response = response, message = "Note Updated!")
     }

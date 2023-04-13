@@ -24,6 +24,12 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
         }
     }
 
+    fun sortNotesByPriority(sortBy: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            noteRepository.sortNotesByPriority(sortBy = sortBy)
+        }
+    }
+
     fun createNotes(
         noteRequest: NoteRequest
     ) {

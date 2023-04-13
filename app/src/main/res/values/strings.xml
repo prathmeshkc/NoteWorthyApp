@@ -24,4 +24,13 @@
     <string name="add_note">Add Note</string>
     <string name="add_new_note_button">Add New Note Button</string>
     <string name="add_images">Add Images</string>
+
+
+    <string-array name="priorities">
+        <item>LOW</item>
+        <item>MEDIUM</item>
+        <item>HIGH</item>
+    </string-array>
+
+
 </resources>
