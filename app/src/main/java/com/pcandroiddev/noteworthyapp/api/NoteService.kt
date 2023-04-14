@@ -16,6 +16,11 @@ interface NoteService {
         @Query("sortBy") sortBy: String
     ): Response<List<NoteResponse>>
 
+    @GET("/notes/{searchText}")
+    suspend fun searchNotes(
+        @Path("searchText") searchText: String
+    ): Response<List<NoteResponse>>
+
     @Multipart
     @POST("/notes/")
     suspend fun createNote(

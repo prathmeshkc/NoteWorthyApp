@@ -50,6 +50,21 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
         }
     }
 
+    suspend fun searchNotes(searchText: String) {
+        _notesLiveData.postValue(NetworkResults.Loading())
+        val response = noteService.searchNotes(searchText = searchText)
+        Log.d("NoteRepository", "searchNotes service called")
+        if (response.isSuccessful && response.body() != null) {
+            _notesLiveData.postValue(NetworkResults.Success(data = response.body()!!))
+        } else if (response.errorBody() != null) {
+            Log.d("NoteRepository", "searchNotes: $response")
+            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
+            _notesLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
+        } else {
+            _notesLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
+        }
+    }
+
     suspend fun createNote(
         noteRequest: NoteRequest
     ) {

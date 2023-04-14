@@ -3,16 +3,16 @@ package com.pcandroiddev.noteworthyapp.ui.fragments
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -77,6 +77,21 @@ class MainFragment : Fragment() {
             noteViewModel.getNotes()
             binding.swipeToRefresh.isRefreshing = false
         }
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+
+                newText?.let { searchText ->
+                    noteViewModel.searchNotes(searchText = searchText)
+                }
+                return true
+            }
+
+        })
 
         bindObservers()
 
