@@ -15,6 +15,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.pcandroiddev.noteworthyapp.MainActivity
 import com.pcandroiddev.noteworthyapp.R
@@ -23,6 +24,7 @@ import com.pcandroiddev.noteworthyapp.databinding.FragmentNoteBinding
 import com.pcandroiddev.noteworthyapp.models.note.NoteRequest
 import com.pcandroiddev.noteworthyapp.models.note.NoteResponse
 import com.pcandroiddev.noteworthyapp.util.NetworkResults
+import com.pcandroiddev.noteworthyapp.util.OnImageDeletedListener
 import com.pcandroiddev.noteworthyapp.viewmodel.NoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -33,7 +35,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 @AndroidEntryPoint
-class NoteFragment : Fragment() {
+class NoteFragment : Fragment(), OnImageDeletedListener {
 
     private var _binding: FragmentNoteBinding? = null
     private val binding: FragmentNoteBinding get() = _binding!!
@@ -47,10 +49,11 @@ class NoteFragment : Fragment() {
 
     private val contracts =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-            uriList = it.toMutableList()
-            imageAdapter.submitList(uriList)
+//            uriList = it.toMutableList()
+            uriList.addAll(it.toMutableList())
+            Log.d("NoteFragment", "registerForActivityResult: $uriList")
+            imageAdapter.submitList(uriList.toList())
             Log.d("NoteFragment", "SelectedImageUriList: $uriList")
-
         }
 
     override fun onCreateView(
@@ -59,7 +62,7 @@ class NoteFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         _binding = FragmentNoteBinding.inflate(inflater, container, false)
-        imageAdapter = ImageAdapter((activity as MainActivity).glide)
+        imageAdapter = ImageAdapter((activity as MainActivity).glide, ::onImageClicked)
         return binding.root
     }
 
@@ -89,6 +92,11 @@ class NoteFragment : Fragment() {
             contracts.launch("image/*")
         }
 
+        binding.btnShare.setOnClickListener {
+            note?.let {
+                noteViewModel.shareNoteByEmail(noteId = (it.noteId).toString())
+            }
+        }
 
         binding.btnSubmit.setOnClickListener {
             val title = binding.txtTitle.text.toString()
@@ -142,10 +150,34 @@ class NoteFragment : Fragment() {
                 is NetworkResults.Success -> {
                     findNavController().popBackStack()
                 }
+
                 is NetworkResults.Error -> {
                     Toast.makeText(requireContext(), it.message.toString(), Toast.LENGTH_SHORT)
                         .show()
                 }
+
+                is NetworkResults.Loading -> {
+                    binding.progressBar.isVisible = true
+                }
+            }
+        }
+
+        noteViewModel.shareByEmailLiveData.observe(viewLifecycleOwner) {
+            binding.progressBar.isVisible = false
+            when (it) {
+                is NetworkResults.Success -> {
+                    Snackbar.make(requireView(), "Email Sent!", Snackbar.LENGTH_LONG)
+                        .setAction("OK") {
+                            // Do nothing, just dismiss the Snackbar
+                        }
+                        .show()
+                }
+
+                is NetworkResults.Error -> {
+                    Toast.makeText(requireContext(), it.message.toString(), Toast.LENGTH_SHORT)
+                        .show()
+                }
+
                 is NetworkResults.Loading -> {
                     binding.progressBar.isVisible = true
                 }
@@ -171,6 +203,7 @@ class NoteFragment : Fragment() {
         } else {
             binding.addEditText.text = "Add Note"
             binding.btnDelete.visibility = View.GONE
+            binding.btnShare.visibility = View.GONE
         }
     }
 
@@ -199,9 +232,34 @@ class NoteFragment : Fragment() {
         binding.actvPriority.setAdapter(dropDownArrayAdapter)
     }
 
+    private fun onImageClicked(uriToString: String) {
+        Log.d("NoteFragment", "onImageClicked: $uriToString")
+        val bundle = Bundle()
+        bundle.putString("image_uri", uriToString)
+        findNavController().navigate(R.id.action_noteFragment_to_imageFragment, bundle)
+    }
+
+    override fun onImageDeleted(imageUri: Uri) {
+        val images = imageAdapter.currentList.toMutableList()
+        images.remove(imageUri)
+        imageAdapter.submitList(images.toList())
+    }
+
+    /**
+    Also call setupDropDownArrayAdapter() in onResume because when you navigate to other fragment
+    and navigate back to this fragment, the onResume() will be called
+    and the arrayAdapter will be setup up again.
+     */
+    override fun onResume() {
+        super.onResume()
+        setupDropDownArrayAdapter()
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 
 }

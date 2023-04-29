@@ -7,18 +7,28 @@
 
     <TextView
         android:id="@+id/add_edit_text"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="28dp"
-        android:layout_marginEnd="16dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:text="Edit Note"
         android:textColor="@color/black"
         android:textSize="28sp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/btn_share"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="30dp"
+        android:contentDescription="Share Button"
+        android:src="@drawable/ic_email"
+        app:layout_constraintEnd_toStartOf="@id/btn_delete"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/black" />
 
     <ImageView
         android:id="@+id/btn_delete"
@@ -28,7 +38,7 @@
         android:layout_marginEnd="16dp"
         android:contentDescription="Delete Button"
         android:src="@drawable/ic_delete"
-        app:layout_constraintEnd_toEndOf="@+id/add_edit_text"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/black" />
 
@@ -56,7 +66,7 @@
         <EditText
             android:id="@+id/txt_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="7dp"
             android:background="@android:color/transparent"
             android:fontFamily="@font/sf_pro_display_semibold"
@@ -108,7 +118,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:hint="Priority">
+            android:hint="Priority"
+            app:boxStrokeColor="@color/black"
+            app:boxStrokeWidth="2dp"
+            app:endIconTint="@color/black"
+            app:hintTextColor="@color/black">
 
             <AutoCompleteTextView
                 android:id="@+id/actvPriority"
@@ -116,15 +130,11 @@
                 android:layout_height="wrap_content"
                 android:inputType="none"
                 android:text="LOW"
+                android:gravity="center_horizontal"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="5dp"
-            android:background="@color/light_gray" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_images"
@@ -134,32 +144,6 @@
             android:elevation="20dp"
             android:orientation="horizontal"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
-
-        <Button
-            android:id="@+id/btn_AddImage"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/black"
-            android:fontFamily="@font/sf_pro_display_bold"
-            android:text="@string/add_images"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-
-        <Button
-            android:id="@+id/btn_submit"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:backgroundTint="@color/black"
-            android:fontFamily="@font/sf_pro_display_bold"
-            android:text="@string/txt_submit"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_bar"
@@ -171,6 +155,41 @@
             app:indicatorColor="@color/black" />
     </LinearLayout>
 
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btn_AddImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="@color/black"
+        android:fontFamily="@font/sf_pro_display_bold"
+        android:text="@string/add_images"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:icon="@drawable/ic_image"
+        app:iconTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btn_submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="@color/black"
+        android:fontFamily="@font/sf_pro_display_bold"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:icon="@drawable/ic_check"
+        app:iconTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

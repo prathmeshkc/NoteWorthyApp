@@ -105,17 +105,21 @@ class MainFragment : Fragment() {
                 is NetworkResults.Success -> {
                     adapter.submitList(it.data)
                     if (it.data?.isEmpty() == true) {
-                        binding.tvEmptyResponse.visibility = View.VISIBLE
+//                        binding.tvEmptyResponse.visibility = View.VISIBLE
+                        binding.emptyListAnimation.visibility = View.VISIBLE
                         Log.d(TAG, "bindObservers EmptyResponse: ${it.data} ")
                     } else {
-                        binding.tvEmptyResponse.visibility = View.GONE
+//                        binding.tvEmptyResponse.visibility = View.GONE
+                        binding.emptyListAnimation.visibility = View.GONE
                         Log.d(TAG, "bindObservers Response: ${it.data} ")
                     }
                 }
+
                 is NetworkResults.Error -> {
                     Toast.makeText(requireContext(), it.message.toString(), Toast.LENGTH_SHORT)
                         .show()
                 }
+
                 is NetworkResults.Loading -> {
                     binding.progressBar.isVisible = true
                 }
@@ -160,6 +164,7 @@ class MainFragment : Fragment() {
                         findNavController().navigate(R.id.action_mainFragment_to_loginFragment)
                         true
                     }
+
                     else -> {
                         false
                     }
@@ -201,6 +206,11 @@ class MainFragment : Fragment() {
 
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        noteViewModel.getNotes()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

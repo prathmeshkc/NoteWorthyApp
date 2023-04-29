@@ -80,6 +80,9 @@ dependencies {
     // Swipe refresh layout
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
+    //Lottie Animation
+    implementation 'com.airbnb.android:lottie:6.0.0'
+
 
 }
 

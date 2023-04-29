@@ -11,7 +11,10 @@ import com.bumptech.glide.RequestManager
 import com.pcandroiddev.noteworthyapp.databinding.ImageItemBinding
 import javax.inject.Inject
 
-class ImageAdapter @Inject constructor(private val glide: RequestManager) :
+class ImageAdapter @Inject constructor(
+    private val glide: RequestManager,
+    private val onImageClicked: (String) -> Unit
+) :
     ListAdapter<Uri, ImageAdapter.ImageViewHolder>(ComparatorDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
@@ -35,6 +38,10 @@ class ImageAdapter @Inject constructor(private val glide: RequestManager) :
                 glide.load(uriToString).into(binding.image)
             } else {
                 binding.image.setImageURI(uri)
+            }
+
+            binding.root.setOnClickListener {
+                onImageClicked(uriToString)
             }
         }
     }

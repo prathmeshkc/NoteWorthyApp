@@ -8,7 +8,7 @@
     android:layout_margin="10dp"
     android:contentDescription="Image Attached"
     android:scaleType="centerCrop"
-    android:src="@drawable/ic_launcher_background"
+    tools:src="@drawable/ic_launcher_background"
     app:layout_constraintDimensionRatio="1"
     app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
     app:strokeColor="@android:color/white"

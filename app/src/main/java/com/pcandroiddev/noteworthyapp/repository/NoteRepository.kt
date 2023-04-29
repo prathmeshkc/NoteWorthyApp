@@ -19,50 +19,30 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
     private val _statusLiveData = MutableLiveData<NetworkResults<String>>()
     val statusLiveData: LiveData<NetworkResults<String>> get() = _statusLiveData
 
+    private val _shareByEmailLiveData = MutableLiveData<NetworkResults<String>>()
+    val shareByEmailLiveData: LiveData<NetworkResults<String>> get() = _shareByEmailLiveData
+
     suspend fun getNotes() {
         _notesLiveData.postValue(NetworkResults.Loading())
         val response = noteService.getNotes()
         Log.d("NoteRepository", "getNotes service called")
-        if (response.isSuccessful && response.body() != null) {
-            _notesLiveData.postValue(NetworkResults.Success(data = response.body()!!))
-        } else if (response.errorBody() != null) {
-            Log.d("NoteRepository", "getNotes: $response")
-            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
-
-            _notesLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
-        } else {
-            _notesLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
-        }
+        handleNotesLiveData(response = response, calledFrom = "getNotes")
     }
 
     suspend fun sortNotesByPriority(sortBy: String) {
         _notesLiveData.postValue(NetworkResults.Loading())
         val response = noteService.sortNotesByPriority(sortBy = sortBy)
         Log.d("NoteRepository", "sortNotesByPriority service called")
-        if (response.isSuccessful && response.body() != null) {
-            _notesLiveData.postValue(NetworkResults.Success(data = response.body()!!))
-        } else if (response.errorBody() != null) {
-            Log.d("NoteRepository", "sortNotesByPriority: $response")
-            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
-            _notesLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
-        } else {
-            _notesLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
-        }
+        handleNotesLiveData(response = response, calledFrom = "sortNotesByPriority")
+
+
     }
 
     suspend fun searchNotes(searchText: String) {
         _notesLiveData.postValue(NetworkResults.Loading())
         val response = noteService.searchNotes(searchText = searchText)
         Log.d("NoteRepository", "searchNotes service called")
-        if (response.isSuccessful && response.body() != null) {
-            _notesLiveData.postValue(NetworkResults.Success(data = response.body()!!))
-        } else if (response.errorBody() != null) {
-            Log.d("NoteRepository", "searchNotes: $response")
-            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
-            _notesLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
-        } else {
-            _notesLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
-        }
+        handleNotesLiveData(response = response, calledFrom = "searchNotes")
     }
 
     suspend fun createNote(
@@ -101,11 +81,42 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
         handleResponse(response = response, message = "Note Deleted!")
     }
 
+    suspend fun shareNoteByEmail(noteId: String) {
+        _statusLiveData.postValue(NetworkResults.Loading())
+        val response = noteService.shareNoteByEmail(noteId = noteId)
+        handleShareByEmailResponse(response = response, message = "Email Sent")
+    }
+
+    /*
+    Can do changes in this method only by passing making it accept the livedata object instead of making
+    handleShareByEmailResponse() method
+     */
     private fun handleResponse(response: Response<NoteResponse>, message: String) {
         if (response.isSuccessful && response.body() != null) {
             _statusLiveData.postValue(NetworkResults.Success(message))
         } else {
             _statusLiveData.postValue(NetworkResults.Error("Something Went Wrong!"))
+        }
+    }
+
+
+    private fun handleShareByEmailResponse(response: Response<NoteResponse>, message: String) {
+        if (response.isSuccessful && response.body() != null) {
+            _shareByEmailLiveData.postValue(NetworkResults.Success(message))
+        } else {
+            _shareByEmailLiveData.postValue(NetworkResults.Error("Something Went Wrong!"))
+        }
+    }
+
+    private fun handleNotesLiveData(response: Response<List<NoteResponse>>, calledFrom: String) {
+        if (response.isSuccessful && response.body() != null) {
+            _notesLiveData.postValue(NetworkResults.Success(data = response.body()!!))
+            Log.d("NoteRepository", "$calledFrom: $response")
+        } else if (response.errorBody() != null) {
+            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
+            _notesLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
+        } else {
+            _notesLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
         }
     }
 

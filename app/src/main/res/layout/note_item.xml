@@ -34,8 +34,8 @@
                 android:id="@+id/imvPriorityColor"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginTop="5.5dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="5.5dp"
                 android:src="@drawable/priority_color_low" />
 
         </LinearLayout>

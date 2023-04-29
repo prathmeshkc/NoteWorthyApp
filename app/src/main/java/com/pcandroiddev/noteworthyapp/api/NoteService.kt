@@ -46,4 +46,11 @@ interface NoteService {
         @Path("noteId")
         noteId: String
     ): Response<NoteResponse>
+
+    @POST("/notes/share/{noteId}")
+    suspend fun shareNoteByEmail(
+        @Path("noteId")
+        noteId: String
+    ): Response<NoteResponse>
+
 }

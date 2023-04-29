@@ -18,6 +18,8 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
     val notesLiveData: LiveData<NetworkResults<List<NoteResponse>>> get() = noteRepository.notesLiveData
     val statusLiveData: LiveData<NetworkResults<String>> get() = noteRepository.statusLiveData
 
+    val shareByEmailLiveData: LiveData<NetworkResults<String>> get() = noteRepository.shareByEmailLiveData
+
     fun getNotes() {
         viewModelScope.launch(Dispatchers.IO) {
             noteRepository.getNotes()
@@ -61,6 +63,12 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
     fun deleteNotes(noteId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             noteRepository.deleteNote(noteId = noteId)
+        }
+    }
+
+    fun shareNoteByEmail(noteId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            noteRepository.shareNoteByEmail(noteId = noteId)
         }
     }
 
