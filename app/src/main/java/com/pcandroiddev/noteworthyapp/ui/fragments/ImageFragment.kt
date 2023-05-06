@@ -1,6 +1,5 @@
 package com.pcandroiddev.noteworthyapp.ui.fragments
 
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,11 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.pcandroiddev.noteworthyapp.MainActivity
-import com.pcandroiddev.noteworthyapp.R
 import com.pcandroiddev.noteworthyapp.databinding.FragmentImageBinding
-import com.pcandroiddev.noteworthyapp.util.OnImageDeletedListener
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ImageFragment : Fragment() {
@@ -25,8 +21,9 @@ class ImageFragment : Fragment() {
 
 
     private lateinit var glide: RequestManager
-    private var parentListener: OnImageDeletedListener? = null
 
+
+    private lateinit var imageOnScreenUri: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,27 +42,15 @@ class ImageFragment : Fragment() {
         bindHandlers()
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        parentListener = parentFragment as? OnImageDeletedListener
-    }
-
     private fun setInitialData() {
         binding.imageFragProgressBar.visibility = View.VISIBLE
-        val imageUriString = arguments?.getString("image_uri")
-        Log.d("ImageFragment", "setInitialData-imageUriString: $imageUriString")
-        val imageUri = Uri.parse(imageUriString)
-        Log.d("ImageFragment", "setInitialData-imageUri: $imageUri")
+        val imageUrl = arguments?.getString("image_url")
+        Log.d("ImageFragment", "setInitialData-imageUriString: $imageUrl")
+        Log.d("ImageFragment", "setInitialData-imageUri: $imageUrl")
 
-        if (imageUriString != null) {
-            if (imageUriString.startsWith("https")) {
-                glide.load(imageUriString).into(binding.ivFullImage)
-                binding.imageFragProgressBar.visibility = View.GONE
-            } else {
-                binding.ivFullImage.setImageURI(imageUri)
-                binding.imageFragProgressBar.visibility = View.GONE
-
-            }
+        if (imageUrl != null) {
+            glide.load(imageUrl).into(binding.ivFullImage)
+            binding.imageFragProgressBar.visibility = View.GONE
         }
     }
 
@@ -74,21 +59,11 @@ class ImageFragment : Fragment() {
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
-
-//        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
-//            when (menuItem.itemId) {
-//                R.id.deleteImage -> {
-//                    Log.d("ImageFragment", "bindHandlers: Image Deleted")
-//                    //TODO
-//                    true
-//                }
-//
-//                else -> {
-//                    Log.d("ImageFragment", "bindHandlers: Something went wrong!")
-//                    false
-//                }
-//            }
-//        }
     }
 
+
+    /*   interface OnImageDeletedListener {
+           fun onImageDeleted(imageUri: Uri)
+       }
+   */
 }

@@ -9,13 +9,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.pcandroiddev.noteworthyapp.databinding.ImageItemBinding
+import com.pcandroiddev.noteworthyapp.models.note.ImgUrl
 import javax.inject.Inject
 
 class ImageAdapter @Inject constructor(
     private val glide: RequestManager,
-    private val onImageClicked: (String) -> Unit
+    private val onImageClicked: (ImgUrl, Int) -> Unit,
+    private val onImageDeleteClicked: (ImgUrl) -> Unit
 ) :
-    ListAdapter<Uri, ImageAdapter.ImageViewHolder>(ComparatorDiffUtil()) {
+    ListAdapter<ImgUrl, ImageAdapter.ImageViewHolder>(ComparatorDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val binding = ImageItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -25,34 +27,35 @@ class ImageAdapter @Inject constructor(
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val uri = getItem(position)
         uri?.let {
-            holder.bind(it)
+            holder.bind(imgUrl = it, position = position)
         }
     }
 
     inner class ImageViewHolder(private val binding: ImageItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(uri: Uri) {
-            val uriToString = uri.toString()
-            Log.d("ImageAdapter", "bind: $uriToString")
-            if (uriToString.startsWith("https")) {
-                glide.load(uriToString).into(binding.image)
-            } else {
-                binding.image.setImageURI(uri)
-            }
+        fun bind(imgUrl: ImgUrl, position: Int) {
+
+            Log.d("ImageAdapter", "bind: $imgUrl")
+            glide.load(imgUrl.public_url).into(binding.image)
+
 
             binding.root.setOnClickListener {
-                onImageClicked(uriToString)
+                onImageClicked(imgUrl, position)
+            }
+
+            binding.btnDelete.setOnClickListener {
+                onImageDeleteClicked(imgUrl)
             }
         }
     }
 
 
-    class ComparatorDiffUtil : DiffUtil.ItemCallback<Uri>() {
-        override fun areItemsTheSame(oldItem: Uri, newItem: Uri): Boolean {
+    class ComparatorDiffUtil : DiffUtil.ItemCallback<ImgUrl>() {
+        override fun areItemsTheSame(oldItem: ImgUrl, newItem: ImgUrl): Boolean {
             return oldItem.toString() == newItem.toString()
         }
 
-        override fun areContentsTheSame(oldItem: Uri, newItem: Uri): Boolean {
+        override fun areContentsTheSame(oldItem: ImgUrl, newItem: ImgUrl): Boolean {
             return oldItem == newItem
         }
 

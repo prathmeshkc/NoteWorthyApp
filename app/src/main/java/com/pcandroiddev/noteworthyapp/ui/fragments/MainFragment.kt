@@ -17,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.gson.Gson
+import com.pcandroiddev.noteworthyapp.MainActivity
 import com.pcandroiddev.noteworthyapp.R
 import com.pcandroiddev.noteworthyapp.adapters.NoteAdapter
 import com.pcandroiddev.noteworthyapp.databinding.FragmentMainBinding
@@ -49,7 +50,10 @@ class MainFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         adapter =
-            NoteAdapter(::onNoteClicked) //Use "::" notation to convert a function into a lambda
+            NoteAdapter(
+                (activity as MainActivity).glide,
+                ::onNoteClicked
+            ) //Use "::" notation to convert a function into a lambda
         return binding.root
     }
 
@@ -105,7 +109,6 @@ class MainFragment : Fragment() {
                 is NetworkResults.Success -> {
                     adapter.submitList(it.data)
                     if (it.data?.isEmpty() == true) {
-//                        binding.tvEmptyResponse.visibility = View.VISIBLE
                         binding.emptyListAnimation.visibility = View.VISIBLE
                         Log.d(TAG, "bindObservers EmptyResponse: ${it.data} ")
                     } else {
@@ -184,7 +187,7 @@ class MainFragment : Fragment() {
                         true
                     }
 
-                    R.id.none -> {
+                    R.id.recent -> {
                         noteViewModel.getNotes()
                         true
                     }

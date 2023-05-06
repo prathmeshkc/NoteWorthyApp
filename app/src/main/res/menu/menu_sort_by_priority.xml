@@ -11,8 +11,8 @@
         android:title="HIGH" />
 
     <item
-        android:id="@+id/none"
-        android:title="NONE" />
+        android:id="@+id/recent"
+        android:title="RECENT" />
 
 
 </menu>

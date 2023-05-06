@@ -4,9 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.pcandroiddev.noteworthyapp.api.NoteService
+import com.pcandroiddev.noteworthyapp.models.image.DeleteImageResponse
+import com.pcandroiddev.noteworthyapp.models.note.ImgUrl
 import com.pcandroiddev.noteworthyapp.models.note.NoteRequest
 import com.pcandroiddev.noteworthyapp.models.note.NoteResponse
 import com.pcandroiddev.noteworthyapp.util.NetworkResults
+import okhttp3.MultipartBody
 import org.json.JSONObject
 import retrofit2.Response
 import javax.inject.Inject
@@ -21,6 +24,13 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
 
     private val _shareByEmailLiveData = MutableLiveData<NetworkResults<String>>()
     val shareByEmailLiveData: LiveData<NetworkResults<String>> get() = _shareByEmailLiveData
+
+    private val _uploadImageUrlLiveData = MutableLiveData<NetworkResults<List<ImgUrl>>>()
+    val uploadImageUrlLiveData: LiveData<NetworkResults<List<ImgUrl>>> get() = _uploadImageUrlLiveData
+
+    private val _deleteImageLiveData = MutableLiveData<NetworkResults<DeleteImageResponse>>()
+    val deleteImageLiveData: LiveData<NetworkResults<DeleteImageResponse>> get() = _deleteImageLiveData
+
 
     suspend fun getNotes() {
         _notesLiveData.postValue(NetworkResults.Loading())
@@ -49,49 +59,53 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
         noteRequest: NoteRequest
     ) {
         _statusLiveData.postValue(NetworkResults.Loading())
-        val response =
-            noteService.createNote(
-                images = noteRequest.images,
-                title = noteRequest.title,
-                description = noteRequest.description,
-                priority = noteRequest.priority
-            )
-        handleResponse(response = response, message = "Note Created!")
+        val response = noteService.createNote(
+            noteRequest = noteRequest
+        )
+        handleStatusLiveData(response = response, message = "Note Created!")
 
     }
 
     suspend fun updateNote(
-        noteId: String,
-        noteRequest: NoteRequest
+        noteId: String, noteRequest: NoteRequest
     ) {
         _statusLiveData.postValue(NetworkResults.Loading())
         val response = noteService.updateNote(
-            noteId = noteId,
-            images = noteRequest.images,
-            title = noteRequest.title,
-            description = noteRequest.description,
-            priority = noteRequest.priority
+            noteId = noteId, noteRequest = noteRequest
         )
-        handleResponse(response = response, message = "Note Updated!")
+        handleStatusLiveData(response = response, message = "Note Updated!")
     }
 
     suspend fun deleteNote(noteId: String) {
         _statusLiveData.postValue(NetworkResults.Loading())
         val response = noteService.deleteNote(noteId = noteId)
-        handleResponse(response = response, message = "Note Deleted!")
+        handleStatusLiveData(response = response, message = "Note Deleted!")
     }
 
     suspend fun shareNoteByEmail(noteId: String) {
-        _statusLiveData.postValue(NetworkResults.Loading())
+        _shareByEmailLiveData.postValue(NetworkResults.Loading())
         val response = noteService.shareNoteByEmail(noteId = noteId)
-        handleShareByEmailResponse(response = response, message = "Email Sent")
+        handleShareByEmailResponse(response = response)
     }
 
+    suspend fun uploadImage(multipartBodyPartList: List<MultipartBody.Part>) {
+        _uploadImageUrlLiveData.postValue(NetworkResults.Loading())
+        val response = noteService.uploadImages(images = multipartBodyPartList)
+        handleImgUrlLiveData(response = response)
+    }
+
+    suspend fun deleteImage(publicId: String) {
+        _deleteImageLiveData.postValue(NetworkResults.Loading())
+        val response = noteService.deleteImage(publicId = publicId)
+        handleDeleteImageStatusLiveData(response = response)
+    }
+
+
     /*
-    Can do changes in this method only by passing making it accept the livedata object instead of making
-    handleShareByEmailResponse() method
+    Can do changes in this method only by passing making it accept the livedata object(basically making it generic)
+    instead of making handleShareByEmailResponse() method
      */
-    private fun handleResponse(response: Response<NoteResponse>, message: String) {
+    private fun handleStatusLiveData(response: Response<NoteResponse>, message: String) {
         if (response.isSuccessful && response.body() != null) {
             _statusLiveData.postValue(NetworkResults.Success(message))
         } else {
@@ -100,9 +114,9 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
     }
 
 
-    private fun handleShareByEmailResponse(response: Response<NoteResponse>, message: String) {
+    private fun handleShareByEmailResponse(response: Response<NoteResponse>) {
         if (response.isSuccessful && response.body() != null) {
-            _shareByEmailLiveData.postValue(NetworkResults.Success(message))
+            _shareByEmailLiveData.postValue(NetworkResults.Success("Email Sent"))
         } else {
             _shareByEmailLiveData.postValue(NetworkResults.Error("Something Went Wrong!"))
         }
@@ -118,6 +132,31 @@ class NoteRepository @Inject constructor(private val noteService: NoteService) {
         } else {
             _notesLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
         }
+    }
+
+    private fun handleImgUrlLiveData(response: Response<List<ImgUrl>>) {
+        if (response.isSuccessful && response.body() != null) {
+            _uploadImageUrlLiveData.postValue(NetworkResults.Success(data = response.body()!!))
+            Log.d("NoteRepository", "uploadImage: $response")
+        } else if (response.errorBody() != null) {
+            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
+            _uploadImageUrlLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
+        } else {
+            _uploadImageUrlLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
+        }
+    }
+
+    private fun handleDeleteImageStatusLiveData(response: Response<DeleteImageResponse>) {
+        if (response.isSuccessful && response.body() != null) {
+            _deleteImageLiveData.postValue(NetworkResults.Success(data = response.body()!!))
+            Log.d("NoteRepository", "deleteImage: $response")
+        } else if (response.errorBody() != null) {
+            val errorObj = JSONObject(response.errorBody()!!.charStream().readText())
+            _deleteImageLiveData.postValue(NetworkResults.Error(message = errorObj.getString("message")))
+        } else {
+            _deleteImageLiveData.postValue(NetworkResults.Error(message = "Something Went Wrong!"))
+        }
+
     }
 
 }
