@@ -49,7 +49,6 @@ class NoteFragment : Fragment() {
 
     private lateinit var imageAdapter: ImageAdapter
 
-//    private var recyclerViewState: Parcelable? = null
 
 
     private val contracts =
@@ -89,10 +88,6 @@ class NoteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        if (savedInstanceState != null) {
-//            recyclerViewState = savedInstanceState.getParcelable("recycler_state")
-//        }
-
         setupDropDownArrayAdapter()
         setInitialData()
         setupRecyclerViewAdapter()
@@ -100,20 +95,6 @@ class NoteFragment : Fragment() {
         bindObservers()
     }
 
-    /* override fun onViewStateRestored(savedInstanceState: Bundle?) {
-         super.onViewStateRestored(savedInstanceState)
-         if (savedInstanceState != null) {
-             recyclerViewState = savedInstanceState.getParcelable("recycler_state")
-         }
-     }*/
-
-    /*override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable(
-            "recycler_state",
-            binding.rvImages.layoutManager?.onSaveInstanceState()
-        )
-    }*/
 
     private fun setupRecyclerViewAdapter() {
         binding.rvImages.layoutManager =
@@ -223,8 +204,7 @@ class NoteFragment : Fragment() {
                     val updatedList = currentList.toList()
                     imageAdapter.submitList(updatedList)
                     Log.d(
-                        Constants.TAG,
-                        "NoteFragment bindObservers updatedList: $updatedList"
+                        Constants.TAG, "NoteFragment bindObservers updatedList: $updatedList"
                     )
                     if (it.data.isEmpty()) {
                         binding.rvImages.visibility = View.GONE
@@ -235,8 +215,7 @@ class NoteFragment : Fragment() {
                     } else {
                         binding.rvImages.visibility = View.VISIBLE
                         Log.d(
-                            Constants.TAG,
-                            "NoteFragment bindObservers imageUrlLiveData: ${it.data}"
+                            Constants.TAG, "NoteFragment bindObservers imageUrlLiveData: ${it.data}"
                         )
                     }
                 }
@@ -272,9 +251,7 @@ class NoteFragment : Fragment() {
 
                 is NetworkResults.Error -> {
                     Snackbar.make(
-                        requireView(),
-                        deleteImageResponse.message.toString(),
-                        Snackbar.LENGTH_LONG
+                        requireView(), deleteImageResponse.message.toString(), Snackbar.LENGTH_LONG
                     ).show()
                 }
 
@@ -298,7 +275,18 @@ class NoteFragment : Fragment() {
 
                 if (noteResponse.img_urls.isNotEmpty()) {
                     binding.rvImages.visibility = View.VISIBLE
-                    imageAdapter.submitList(noteResponse.img_urls)
+                    //TODO: Below solution is just a work around. Still solid changes improvements required
+                    if (imageAdapter.currentList.isNotEmpty()) {
+                        Log.d("NoteFragment", "setInitialData/isNotEmpty(): true")
+                        val currentList = imageAdapter.currentList.toMutableList()
+                        currentList.addAll(noteResponse.img_urls)
+                        val updatedList = currentList.toList()
+                        imageAdapter.submitList(updatedList)
+                    } else {
+                        Log.d("NoteFragment", "setInitialData/isNotEmpty(): false")
+                        imageAdapter.submitList(noteResponse.img_urls.toList())
+                    }
+
                 } else {
                     binding.rvImages.visibility = View.GONE
                 }
@@ -357,7 +345,6 @@ class NoteFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         setupDropDownArrayAdapter()
-        setInitialData()
     }
 
     override fun onDestroyView() {
