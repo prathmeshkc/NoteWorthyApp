@@ -4,16 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.provider.OpenableColumns
+import android.text.TextUtils
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.net.toUri
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -49,29 +50,17 @@ class NoteFragment : Fragment() {
 
     private lateinit var imageAdapter: ImageAdapter
 
-
-
     private val contracts =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-            /*
-            TODO:
-            1. Call a service to upload a list of images. uploadImages(List<Multipart> it): List<ImgUrl>.
-            This should return a response in the form of ImgUrl(url, public_id).
-            2. Add these ImgUrl list to the list in recycler view which will display the images uploaded by extracting
-            the HTTP URLs.
-            Keep calling uploadImages(it) with the newly chosen list<Uri> (i.e. it) in case of adding more images.
-            And add those ImgUrl to the list in recycler view which will display the images uploaded.
-            */
-
-            if (it.isNotEmpty()) {
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+            if (uris.isNotEmpty()) {
                 val multipartBodyPartList: MutableList<MultipartBody.Part> = mutableListOf()
-                for ((index, contentUri) in it.withIndex()) {
+                for ((index, contentUri) in uris.withIndex()) {
                     multipartBodyPartList.add(index, prepareFilePart(contentUri, index))
                 }
 
                 noteViewModel.uploadImage(multipartBodyPartList = multipartBodyPartList)
                 Log.d("NoteFragment", "registerForActivityResult: $multipartBodyPartList")
-                Log.d("NoteFragment", "registerForActivityResult/SelectedImageUriList: $it")
+                Log.d("NoteFragment", "registerForActivityResult/SelectedImageUriList: $uris")
             }
         }
 
@@ -105,6 +94,11 @@ class NoteFragment : Fragment() {
     }
 
     private fun bindHandlers() {
+
+        binding.topAppBar.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         binding.btnDelete.setOnClickListener {
             note?.let {
                 noteViewModel.deleteNotes(noteId = (it.noteId).toString())
@@ -132,28 +126,60 @@ class NoteFragment : Fragment() {
             Log.d("NoteFragment", "priority: $priority")
             Log.d("NoteFragment", "imgUrlList: $imgUrlList")
 
-            if (note != null) {
+            if ((TextUtils.isEmpty(title) || title.isBlank())
+                && (TextUtils.isEmpty(description) || description.isBlank()) && imgUrlList.isEmpty()
+            ) {
+                Snackbar.make(binding.root, "Empty Note Discarded", Snackbar.LENGTH_LONG).show()
+                findNavController().popBackStack()
 
-                noteViewModel.updateNotes(
-                    noteId = (note!!.noteId).toString(), noteRequest = NoteRequest(
-                        images = imgUrlList,
-                        title = title,
-                        description = description,
-                        priority = priority
-                    )
-                )
             } else {
-                noteViewModel.createNotes(
-                    noteRequest = NoteRequest(
-                        images = imgUrlList,
-                        title = title,
-                        description = description,
-                        priority = priority
+                if (note != null) {
+
+                    noteViewModel.updateNotes(
+                        noteId = (note!!.noteId).toString(), noteRequest = NoteRequest(
+                            images = imgUrlList,
+                            title = title,
+                            description = description,
+                            priority = priority
+                        )
                     )
-                )
+                } else {
+                    noteViewModel.createNotes(
+                        noteRequest = NoteRequest(
+                            images = imgUrlList,
+                            title = title,
+                            description = description,
+                            priority = priority
+                        )
+                    )
+                }
+                Log.d("NoteFragment", "ImageUrlList: $imgUrlList")
             }
-            Log.d("NoteFragment", "ImageUrlList: $imgUrlList")
+
+
         }
+
+        binding.bottomAppBar.setOnMenuItemClickListener { menuItem ->
+
+            when (menuItem.itemId) {
+                R.id.add_media_box -> {
+                    findNavController().navigate(R.id.action_noteFragment_to_addMediaModalBottomSheet)
+                    true
+                }
+
+                R.id.add_priority_color -> {
+
+                    true
+                }
+
+                else -> {
+                    false
+                }
+            }
+
+        }
+
+
     }
 
     private fun bindObservers() {
@@ -215,7 +241,8 @@ class NoteFragment : Fragment() {
                     } else {
                         binding.rvImages.visibility = View.VISIBLE
                         Log.d(
-                            Constants.TAG, "NoteFragment bindObservers imageUrlLiveData: ${it.data}"
+                            Constants.TAG,
+                            "NoteFragment bindObservers imageUrlLiveData: ${imageAdapter.currentList}"
                         )
                     }
                 }
@@ -237,6 +264,8 @@ class NoteFragment : Fragment() {
                 is NetworkResults.Success -> {
 
                     val currentList = imageAdapter.currentList
+                    Log.d("NoteFragment", "deleteImageLiveData/currentList: $currentList")
+
                     val position =
                         currentList.indexOfFirst { it.public_id == deleteImageResponse.data?.public_id }
                     if (position != -1) {
@@ -261,6 +290,7 @@ class NoteFragment : Fragment() {
             }
         }
 
+
     }
 
     private fun setInitialData() {
@@ -275,7 +305,7 @@ class NoteFragment : Fragment() {
 
                 if (noteResponse.img_urls.isNotEmpty()) {
                     binding.rvImages.visibility = View.VISIBLE
-                    //TODO: Below solution is just a work around. Still solid changes improvements required
+                    //TODO: Below solution is just a work around. Still solid are improvements required
                     if (imageAdapter.currentList.isNotEmpty()) {
                         Log.d("NoteFragment", "setInitialData/isNotEmpty(): true")
                         val currentList = imageAdapter.currentList.toMutableList()
@@ -284,7 +314,7 @@ class NoteFragment : Fragment() {
                         imageAdapter.submitList(updatedList)
                     } else {
                         Log.d("NoteFragment", "setInitialData/isNotEmpty(): false")
-                        imageAdapter.submitList(noteResponse.img_urls.toList())
+                        imageAdapter.submitList(noteResponse.img_urls)
                     }
 
                 } else {

@@ -29,4 +29,11 @@
     </style>
 
     <style name="FloatingActionButtonStyle" parent="ShapeAppearanceOverlay.Material3.FloatingActionButton" />
+
+    <style name="CustomBottomAppBarBackground" parent="Widget.MaterialComponents.BottomAppBar">
+        <item name="addElevationShadow">true</item>
+        <item name="cornerSize">20%</item>
+        <item name="cornerFamilyTopLeft">rounded</item>
+    </style>
+
 </resources>
