@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/add_media_box"
+        android:icon="@drawable/ic_add_box"
+        android:title="Add Media"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/share_note"
+        android:icon="@drawable/ic_email"
+        android:title="Send Note By Email"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/delete_note"
+        android:icon="@drawable/ic_delete"
+        android:title="Delete Note"
+        app:showAsAction="always" />
+
+</menu>

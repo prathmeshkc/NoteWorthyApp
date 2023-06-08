@@ -3,6 +3,7 @@ package com.pcandroiddev.noteworthyapp.ui.fragments
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.annotation.MenuRes
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -112,7 +114,6 @@ class MainFragment : Fragment() {
                         binding.emptyListAnimation.visibility = View.VISIBLE
                         Log.d(TAG, "bindObservers EmptyResponse: ${it.data} ")
                     } else {
-//                        binding.tvEmptyResponse.visibility = View.GONE
                         binding.emptyListAnimation.visibility = View.GONE
                         Log.d(TAG, "bindObservers Response: ${it.data} ")
                     }
@@ -141,8 +142,6 @@ class MainFragment : Fragment() {
     private fun showMenu(view: View, @MenuRes menuRes: Int) {
         val popupMenu = PopupMenu(requireContext(), view)
         popupMenu.menuInflater.inflate(menuRes, popupMenu.menu)
-
-
 
         try {
             val fieldMPopup = PopupMenu::class.java.getDeclaredField("mPopup")
@@ -179,16 +178,19 @@ class MainFragment : Fragment() {
                 when (menuItem.itemId) {
                     R.id.low -> {
                         noteViewModel.sortNotesByPriority(sortBy = "LOW")
+                        binding.noteList.scrollToPosition(0)
                         true
                     }
 
                     R.id.high -> {
                         noteViewModel.sortNotesByPriority(sortBy = "HIGH")
+                        binding.noteList.scrollToPosition(0)
                         true
                     }
 
                     R.id.recent -> {
                         noteViewModel.getNotes()
+                        binding.noteList.scrollToPosition(0)
                         true
                     }
 

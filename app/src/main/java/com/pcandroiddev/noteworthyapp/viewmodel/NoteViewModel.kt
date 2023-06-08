@@ -3,6 +3,9 @@ package com.pcandroiddev.noteworthyapp.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.RequestManager
+import com.pcandroiddev.noteworthyapp.adapters.ImageAdapter
+import com.pcandroiddev.noteworthyapp.adapters.NoteAdapter
 import com.pcandroiddev.noteworthyapp.models.image.DeleteImageResponse
 import com.pcandroiddev.noteworthyapp.models.note.ImgUrl
 import com.pcandroiddev.noteworthyapp.models.note.NoteRequest

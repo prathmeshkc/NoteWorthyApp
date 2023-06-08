@@ -1,22 +1,18 @@
 package com.pcandroiddev.noteworthyapp.ui.fragments
 
-import android.annotation.SuppressLint
-import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.text.TextUtils
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -33,11 +29,7 @@ import com.pcandroiddev.noteworthyapp.util.Constants
 import com.pcandroiddev.noteworthyapp.util.NetworkResults
 import com.pcandroiddev.noteworthyapp.viewmodel.NoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import java.io.File
-import java.io.FileOutputStream
+import java.lang.StringBuilder
 
 @AndroidEntryPoint
 class NoteFragment : Fragment() {
@@ -46,23 +38,11 @@ class NoteFragment : Fragment() {
     private val binding: FragmentNoteBinding get() = _binding!!
 
     private var note: NoteResponse? = null
-    private val noteViewModel by viewModels<NoteViewModel>()
+
+    //try changing this to by viewmodels<>() or detach VM in onDestroyView()
+    private val noteSharedViewModel by viewModels<NoteViewModel>()
 
     private lateinit var imageAdapter: ImageAdapter
-
-    private val contracts =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-            if (uris.isNotEmpty()) {
-                val multipartBodyPartList: MutableList<MultipartBody.Part> = mutableListOf()
-                for ((index, contentUri) in uris.withIndex()) {
-                    multipartBodyPartList.add(index, prepareFilePart(contentUri, index))
-                }
-
-                noteViewModel.uploadImage(multipartBodyPartList = multipartBodyPartList)
-                Log.d("NoteFragment", "registerForActivityResult: $multipartBodyPartList")
-                Log.d("NoteFragment", "registerForActivityResult/SelectedImageUriList: $uris")
-            }
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -96,23 +76,7 @@ class NoteFragment : Fragment() {
     private fun bindHandlers() {
 
         binding.topAppBar.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        binding.btnDelete.setOnClickListener {
-            note?.let {
-                noteViewModel.deleteNotes(noteId = (it.noteId).toString())
-            }
-        }
-
-        binding.btnAddImage.setOnClickListener {
-            contracts.launch("image/*")
-        }
-
-        binding.btnShare.setOnClickListener {
-            note?.let {
-                noteViewModel.shareNoteByEmail(noteId = (it.noteId).toString())
-            }
+            findNavController().popBackStack()
         }
 
         binding.btnSubmit.setOnClickListener {
@@ -126,16 +90,14 @@ class NoteFragment : Fragment() {
             Log.d("NoteFragment", "priority: $priority")
             Log.d("NoteFragment", "imgUrlList: $imgUrlList")
 
-            if ((TextUtils.isEmpty(title) || title.isBlank())
-                && (TextUtils.isEmpty(description) || description.isBlank()) && imgUrlList.isEmpty()
-            ) {
+            if ((TextUtils.isEmpty(title) || title.isBlank()) && (TextUtils.isEmpty(description) || description.isBlank()) && imgUrlList.isEmpty()) {
                 Snackbar.make(binding.root, "Empty Note Discarded", Snackbar.LENGTH_LONG).show()
                 findNavController().popBackStack()
 
             } else {
                 if (note != null) {
 
-                    noteViewModel.updateNotes(
+                    noteSharedViewModel.updateNotes(
                         noteId = (note!!.noteId).toString(), noteRequest = NoteRequest(
                             images = imgUrlList,
                             title = title,
@@ -144,7 +106,7 @@ class NoteFragment : Fragment() {
                         )
                     )
                 } else {
-                    noteViewModel.createNotes(
+                    noteSharedViewModel.createNotes(
                         noteRequest = NoteRequest(
                             images = imgUrlList,
                             title = title,
@@ -167,8 +129,19 @@ class NoteFragment : Fragment() {
                     true
                 }
 
-                R.id.add_priority_color -> {
 
+                R.id.share_note -> {
+                    note?.let {
+//                        noteSharedViewModel.shareNoteByEmail(noteId = (it.noteId).toString())
+                        shareNote(it)
+                    }
+                    true
+                }
+
+                R.id.delete_note -> {
+                    note?.let {
+                        noteSharedViewModel.deleteNotes(noteId = (it.noteId).toString())
+                    }
                     true
                 }
 
@@ -179,11 +152,10 @@ class NoteFragment : Fragment() {
 
         }
 
-
     }
 
     private fun bindObservers() {
-        noteViewModel.statusLiveData.observe(viewLifecycleOwner) {
+        noteSharedViewModel.statusLiveData.observe(viewLifecycleOwner) {
             binding.progressBar.isVisible = false
             when (it) {
                 is NetworkResults.Success -> {
@@ -201,7 +173,7 @@ class NoteFragment : Fragment() {
             }
         }
 
-        noteViewModel.shareByEmailLiveData.observe(viewLifecycleOwner) {
+        noteSharedViewModel.shareByEmailLiveData.observe(viewLifecycleOwner) {
             binding.progressBar.isVisible = false
             when (it) {
                 is NetworkResults.Success -> {
@@ -220,7 +192,7 @@ class NoteFragment : Fragment() {
             }
         }
 
-        noteViewModel.uploadImageUrlLiveData.observe(viewLifecycleOwner) {
+        noteSharedViewModel.uploadImageUrlLiveData.observe(viewLifecycleOwner) {
             binding.progressBar.isVisible = false
 
             when (it) {
@@ -230,18 +202,18 @@ class NoteFragment : Fragment() {
                     val updatedList = currentList.toList()
                     imageAdapter.submitList(updatedList)
                     Log.d(
-                        Constants.TAG, "NoteFragment bindObservers updatedList: $updatedList"
+                        "NoteFragment", "NoteFragment bindObservers updatedList: $updatedList"
                     )
                     if (it.data.isEmpty()) {
                         binding.rvImages.visibility = View.GONE
                         Log.d(
-                            Constants.TAG,
+                            "NoteFragment",
                             "NoteFragment bindObservers imageUrlLiveData EmptyResponse: ${it.data}"
                         )
                     } else {
                         binding.rvImages.visibility = View.VISIBLE
                         Log.d(
-                            Constants.TAG,
+                            "NoteFragment",
                             "NoteFragment bindObservers imageUrlLiveData: ${imageAdapter.currentList}"
                         )
                     }
@@ -257,7 +229,7 @@ class NoteFragment : Fragment() {
             }
         }
 
-        noteViewModel.deleteImageLiveData.observe(viewLifecycleOwner) { deleteImageResponse ->
+        noteSharedViewModel.deleteImageLiveData.observe(viewLifecycleOwner) { deleteImageResponse ->
             binding.progressBar.isVisible = false
 
             when (deleteImageResponse) {
@@ -305,7 +277,7 @@ class NoteFragment : Fragment() {
 
                 if (noteResponse.img_urls.isNotEmpty()) {
                     binding.rvImages.visibility = View.VISIBLE
-                    //TODO: Below solution is just a work around. Still solid are improvements required
+                    //TODO: Below solution is just a work around. Still solid improvements are required
                     if (imageAdapter.currentList.isNotEmpty()) {
                         Log.d("NoteFragment", "setInitialData/isNotEmpty(): true")
                         val currentList = imageAdapter.currentList.toMutableList()
@@ -322,28 +294,14 @@ class NoteFragment : Fragment() {
                 }
             }
         } else {
-            binding.addEditText.text = "Add Note"
-            binding.btnDelete.visibility = View.GONE
-            binding.btnShare.visibility = View.GONE
+            Log.d("NoteFragment", "setInitialData called/ jsonNote == null")
+            binding.topAppBar.title = "Add Note"
+            val menu = binding.bottomAppBar.menu
+            val btnDelete = menu.findItem(R.id.delete_note)
+            val btnShare = menu.findItem(R.id.share_note)
+            btnDelete.isVisible = false
+            btnShare.isVisible = false
         }
-    }
-
-    private fun prepareFilePart(uri: Uri, index: Int): MultipartBody.Part {
-        Log.d("NoteFragment", "prepareFilePart: ${uri.path}")
-        val filesDir = activity?.applicationContext?.filesDir
-        val file = File(filesDir, "image_${getFileName(requireContext(), uri)}.png")
-        file.createNewFile()
-        val inputStream = activity?.applicationContext?.contentResolver?.openInputStream(uri)
-        Log.d("NoteFragment", "imageToMultiPart: $inputStream")
-        val outputStream = FileOutputStream(file)
-        inputStream!!.copyTo(outputStream)
-        val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-        Log.d("NoteFragment", "RequestBody: $requestBody")
-        val part = MultipartBody.Part.createFormData("img_urls", file.name, requestBody)
-        Log.d("NoteFragment", "MultipartBody.Part: $part")
-
-        return part
-
     }
 
     private fun setupDropDownArrayAdapter() {
@@ -364,8 +322,27 @@ class NoteFragment : Fragment() {
      * Should've passed just the public_id but passing the whole object just in case required later
      */
     private fun onImageDeleteClicked(imgUrl: ImgUrl) {
-        noteViewModel.deleteImage(publicId = imgUrl.public_id)
+        noteSharedViewModel.deleteImage(publicId = imgUrl.public_id)
     }
+
+    private fun shareNote(noteResponse: NoteResponse) {
+        val sharedContent = StringBuilder()
+        sharedContent.append("Title: ").append(noteResponse.title).append("\n\n")
+        sharedContent.append("Description: ").append(noteResponse.description).append("\n\n\n")
+        sharedContent.append("Priority: ").append(noteResponse.priority).append("\n\n")
+        sharedContent.append("Attachments:- \n\n")
+
+        for ((index, imgUrl) in noteResponse.img_urls.withIndex()) {
+            sharedContent.append("${index + 1})\t").append(imgUrl.public_url).append("\n")
+        }
+
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "text/plain"
+        shareIntent.putExtra(Intent.EXTRA_TEXT, sharedContent.toString())
+        startActivity(Intent.createChooser(shareIntent, "Share Note"))
+
+    }
+
 
     /**
     Also call setupDropDownArrayAdapter() in onResume because when you navigate to other fragment
@@ -378,25 +355,16 @@ class NoteFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        noteSharedViewModel.uploadImageUrlLiveData.removeObservers(viewLifecycleOwner)
+        noteSharedViewModel.statusLiveData.removeObservers(viewLifecycleOwner)
+        noteSharedViewModel.shareByEmailLiveData.removeObservers(viewLifecycleOwner)
+        noteSharedViewModel.deleteImageLiveData.removeObservers(viewLifecycleOwner)
+        imageAdapter.submitList(emptyList())
         _binding = null
+        Log.d("NoteFragment", "onDestroyView() called")
+        super.onDestroyView()
+
     }
 
 
-    @SuppressLint("Range")
-    private fun getFileName(context: Context, uri: Uri): String {
-
-        if (uri.scheme == "content") {
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            cursor.use {
-                if (cursor != null) {
-                    if (cursor.moveToFirst()) {
-                        return cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    }
-                }
-            }
-        }
-
-        return uri.path!!.substring(uri.path!!.lastIndexOf('/') + 1)
-    }
 }

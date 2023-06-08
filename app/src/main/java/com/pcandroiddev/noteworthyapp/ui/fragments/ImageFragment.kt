@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.pcandroiddev.noteworthyapp.MainActivity
+import com.pcandroiddev.noteworthyapp.R
 import com.pcandroiddev.noteworthyapp.databinding.FragmentImageBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,8 +23,7 @@ class ImageFragment : Fragment() {
 
     private lateinit var glide: RequestManager
 
-
-    private lateinit var imageOnScreenUri: String
+    private var imageUrl: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +44,7 @@ class ImageFragment : Fragment() {
 
     private fun setInitialData() {
         binding.imageFragProgressBar.visibility = View.VISIBLE
-        val imageUrl = arguments?.getString("image_url")
+        imageUrl = arguments?.getString("image_url")
         Log.d("ImageFragment", "setInitialData-imageUriString: $imageUrl")
         Log.d("ImageFragment", "setInitialData-imageUri: $imageUrl")
 
@@ -57,13 +57,28 @@ class ImageFragment : Fragment() {
 
     private fun bindHandlers() {
         binding.topAppBar.setNavigationOnClickListener {
-            findNavController().navigateUp()
+            findNavController().popBackStack()
         }
+
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+
+            when (menuItem.itemId) {
+                R.id.download_image -> {
+                    imageUrl?.let { url ->
+                        (activity as MainActivity).imageDownloader.downloadFile(url)
+                    }
+                    true
+                }
+
+                else -> {
+                    Log.d("ImageFragment", "bindHandlers: Image Download Failed")
+                    false
+                }
+            }
+
+        }
+
+
     }
 
-
-    /*   interface OnImageDeletedListener {
-           fun onImageDeleted(imageUri: Uri)
-       }
-   */
 }

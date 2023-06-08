@@ -12,7 +12,7 @@
 
     <item
         android:id="@+id/recent"
-        android:title="RECENT" />
+        android:title="MOST RECENT" />
 
 
 </menu>

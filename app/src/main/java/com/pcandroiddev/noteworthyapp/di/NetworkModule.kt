@@ -1,20 +1,23 @@
 package com.pcandroiddev.noteworthyapp.di
 
+import android.content.Context
 import com.pcandroiddev.noteworthyapp.api.AuthInterceptor
 import com.pcandroiddev.noteworthyapp.api.NoteService
 import com.pcandroiddev.noteworthyapp.api.UserService
 import com.pcandroiddev.noteworthyapp.util.Constants.BASE_URL
+import com.pcandroiddev.noteworthyapp.util.downloader.image.ImageDownloader
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
-@InstallIn(SingletonComponent::class)
 @Module
+@InstallIn(SingletonComponent::class)
 class NetworkModule {
 
     @Singleton
@@ -49,6 +52,12 @@ class NetworkModule {
             .client(okHttpClient)
             .build()
             .create(NoteService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideImageDownloader(@ApplicationContext context: Context): ImageDownloader {
+        return ImageDownloader(context = context)
     }
 
 

@@ -18,59 +18,19 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
+            app:title="Edit Note"
             app:layout_scrollFlags="enterAlways"
             app:menu="@menu/menu_note_app_bar"
             app:navigationIcon="@drawable/ic_back_arrow" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
-        android:id="@+id/add_edit_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="68dp"
-        android:fontFamily="@font/sf_pro_display_bold"
-        android:text="Edit Note"
-        android:textColor="@color/black"
-        android:textSize="28sp"
-        app:layout_anchor="@id/appBarLayout"
-        app:layout_anchorGravity="bottom|left" />
-
-
-    <ImageView
-        android:id="@+id/btn_share"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="68dp"
-        android:layout_marginEnd="90dp"
-        android:contentDescription="Share Button"
-        android:src="@drawable/ic_email"
-        app:layout_anchor="@id/appBarLayout"
-        app:layout_anchorGravity="bottom|end"
-        app:tint="@color/black" />
-
-    <ImageView
-        android:id="@+id/btn_delete"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="68dp"
-        android:layout_marginEnd="22dp"
-        android:contentDescription="Delete Button"
-        android:src="@drawable/ic_delete"
-        app:layout_anchor="@id/appBarLayout"
-        app:layout_anchorGravity="end"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/add_edit_text"
-        app:tint="@color/black" />
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="24dp"
-        android:layout_marginTop="50dp"
-        android:paddingEnd="24dp"
         android:layout_marginBottom="60dp"
+        android:paddingStart="19dp"
+        android:paddingEnd="19dp"
         app:layout_anchor="@id/appBarLayout"
         app:layout_anchorGravity="bottom"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -80,7 +40,6 @@
             android:id="@+id/ll_title_desc_priority"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-
             android:orientation="vertical"
             app:layout_anchor="@id/appBarLayout"
             app:layout_anchorGravity="bottom"
@@ -104,43 +63,12 @@
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
 
 
-            <EditText
-                android:id="@+id/txt_title"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="7dp"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/sf_pro_display_bold"
-                android:hint="@string/txt_title_hint"
-                android:textColor="@color/black"
-                android:textColorHint="@color/light_gray"
-                android:textCursorDrawable="@drawable/cursor_drawable"
-                android:textSize="24sp" />
-
-            <EditText
-                android:id="@+id/txt_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="7dp"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/sf_pro_display_regular"
-                android:gravity="top|start"
-                android:hint="@string/txt_description_hint"
-                android:inputType="textMultiLine"
-                android:lines="5"
-                android:scrollbars="vertical"
-                android:scrollHorizontally="false"
-                android:textColor="@color/black"
-                android:textColorHint="@color/light_gray"
-                android:textCursorDrawable="@drawable/cursor_drawable"
-                android:textSize="20sp" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPriority"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="300dp"
+                android:layout_marginTop="7dp"
                 android:hint="Priority"
                 app:boxStrokeColor="@color/black"
                 app:boxStrokeWidth="2dp"
@@ -158,6 +86,37 @@
             </com.google.android.material.textfield.TextInputLayout>
 
 
+            <EditText
+                android:id="@+id/txt_title"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="7dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/sf_pro_display_bold"
+                android:hint="@string/txt_title_hint"
+                android:textColor="@color/black"
+                android:textColorHint="@color/light_gray"
+                android:textCursorDrawable="@drawable/cursor_drawable"
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/txt_description"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="7dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/sf_pro_display_regular"
+                android:gravity="top|start"
+                android:hint="@string/txt_description_hint"
+                android:inputType="textMultiLine"
+                android:scrollbars="vertical"
+                android:scrollHorizontally="false"
+                android:textColor="@color/black"
+                android:textColorHint="@color/light_gray"
+                android:textCursorDrawable="@drawable/cursor_drawable"
+                android:textSize="20sp" />
+
+
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progress_bar"
                 android:layout_width="match_parent"
@@ -170,23 +129,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btn_AddImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="700dp"
-        android:backgroundTint="@color/black"
-        android:fontFamily="@font/sf_pro_display_bold"
-        android:text="@string/add_images"
-        android:textAllCaps="true"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:icon="@drawable/ic_image"
-        app:iconTint="@color/white"
-        app:layout_anchor="@id/ll_title_desc_priority"
-        app:layout_anchorGravity="bottom|start" />
-
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_submit"
@@ -195,7 +137,6 @@
         android:backgroundTint="@color/black"
         android:contentDescription="Confirm Adding Note"
         app:layout_anchor="@id/bottomAppBar"
-        app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_check"
         app:tint="@color/white" />
 
@@ -208,7 +149,7 @@
         android:layout_gravity="bottom"
         app:fabAlignmentMode="end"
         app:hideOnScroll="false"
-        app:menu="@menu/menu_bottom_app_bar" />
+        app:menu="@menu/menu_note_frag_bottom_app_bar" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

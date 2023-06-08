@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
+            app:menu="@menu/menu_image_frag_app_bar"
             app:navigationIcon="@drawable/ic_back_arrow"
             app:title="Selected Image" />
 

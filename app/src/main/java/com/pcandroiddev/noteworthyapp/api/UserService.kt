@@ -1,5 +1,6 @@
 package com.pcandroiddev.noteworthyapp.api
 
+import com.pcandroiddev.noteworthyapp.models.jwt.RefreshTokenRequest
 import com.pcandroiddev.noteworthyapp.models.user.UserRequest
 import com.pcandroiddev.noteworthyapp.models.user.UserResponse
 import retrofit2.Response
