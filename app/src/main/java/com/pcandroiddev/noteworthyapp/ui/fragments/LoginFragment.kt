@@ -42,9 +42,9 @@ class LoginFragment : Fragment() {
 
         binding.btnLogin.setOnClickListener {
             val validationResult = validateUserInputs()
-            if(validationResult.first){
+            if (validationResult.first) {
                 authViewModel.loginUser(getUserRequest())
-            }else{
+            } else {
                 binding.txtError.text = validationResult.second
             }
         }
@@ -78,11 +78,14 @@ class LoginFragment : Fragment() {
             when (it) {
                 is NetworkResults.Success -> {
                     tokenManager.saveToken(it.data!!.token)
+                    tokenManager.saveUserEmail(it.data.user.email)
                     findNavController().navigate(R.id.action_loginFragment_to_mainFragment)
                 }
+
                 is NetworkResults.Error -> {
                     binding.txtError.text = it.message
                 }
+
                 is NetworkResults.Loading -> {
                     binding.progressBar.isVisible = true
                 }

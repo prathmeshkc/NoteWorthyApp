@@ -9,7 +9,7 @@
         android:id="@+id/registerFragment"
         android:name="com.pcandroiddev.noteworthyapp.ui.fragments.RegisterFragment"
         android:label="fragment_register"
-        tools:layout="@layout/fragment_register" >
+        tools:layout="@layout/fragment_register">
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -23,7 +23,7 @@
         android:id="@+id/loginFragment"
         android:name="com.pcandroiddev.noteworthyapp.ui.fragments.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" >
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_mainFragment"
             app:destination="@id/mainFragment"
@@ -39,7 +39,7 @@
         android:id="@+id/mainFragment"
         android:name="com.pcandroiddev.noteworthyapp.ui.fragments.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" >
+        tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_noteFragment"
             app:destination="@id/noteFragment" />
@@ -53,5 +53,23 @@
         android:id="@+id/noteFragment"
         android:name="com.pcandroiddev.noteworthyapp.ui.fragments.NoteFragment"
         android:label="fragment_note"
-        tools:layout="@layout/fragment_note" />
+        tools:layout="@layout/fragment_note">
+        <action
+            android:id="@+id/action_noteFragment_to_imageFragment"
+            app:destination="@id/imageFragment" />
+        <action
+            android:id="@+id/action_noteFragment_to_addMediaModalBottomSheet"
+            app:destination="@+id/addMediaModalBottomSheet" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageFragment"
+        android:name="com.pcandroiddev.noteworthyapp.ui.fragments.ImageFragment"
+        android:label="ImageFragment"
+        tools:layout="@layout/fragment_image" />
+
+    <dialog
+        android:id="@+id/addMediaModalBottomSheet"
+        android:name="com.pcandroiddev.noteworthyapp.ui.fragments.AddMediaModalBottomSheet"
+        android:label="AddMediaModalBottomSheet" />
+
 </navigation>

@@ -1,5 +1,9 @@
 package com.pcandroiddev.noteworthyapp.api
 
+import com.pcandroiddev.noteworthyapp.models.MessageBody
+import com.pcandroiddev.noteworthyapp.models.image.DeleteImageResponse
+import com.pcandroiddev.noteworthyapp.models.note.ImgUrl
+import com.pcandroiddev.noteworthyapp.models.note.NoteRequest
 import com.pcandroiddev.noteworthyapp.models.note.NoteResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -11,27 +15,40 @@ interface NoteService {
     @GET("/notes/")
     suspend fun getNotes(): Response<List<NoteResponse>>
 
-    @Multipart
+    @GET("/notes/sortBy")
+    suspend fun sortNotesByPriority(
+        @Query("sortBy") sortBy: String
+    ): Response<List<NoteResponse>>
+
+    @GET("/notes/search")
+    suspend fun searchNotes(
+        @Query("searchQuery") searchText: String
+    ): Response<List<NoteResponse>>
+
     @POST("/notes/")
     suspend fun createNote(
-        @Part images: List<MultipartBody.Part> = listOf(),
-        @Part("title") title: RequestBody,
-        @Part("description") description: RequestBody
+        @Body noteRequest: NoteRequest
     ): Response<NoteResponse>
 
-    @Multipart
     @PUT("/notes/{noteId}")
     suspend fun updateNote(
-        @Path("noteId")
-        noteId: String,
-        @Part images: List<MultipartBody.Part> = listOf(),
-        @Part("title") title: RequestBody,
-        @Part("description") description: RequestBody
+        @Path("noteId") noteId: String,
+        @Body noteRequest: NoteRequest
     ): Response<NoteResponse>
 
     @DELETE("/notes/{noteId}")
     suspend fun deleteNote(
-        @Path("noteId")
-        noteId: String
+        @Path("noteId") noteId: String
     ): Response<NoteResponse>
+
+    @Multipart
+    @POST("/notes/image/upload-image")
+    suspend fun uploadImages(
+        @Part images: List<MultipartBody.Part> = listOf()
+    ): Response<List<ImgUrl>>
+
+    @DELETE("/notes/image/delete-image/{public_id}")
+    suspend fun deleteImage(
+        @Path("public_id") publicId: String
+    ): Response<DeleteImageResponse>
 }

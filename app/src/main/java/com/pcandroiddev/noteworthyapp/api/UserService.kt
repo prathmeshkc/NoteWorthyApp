@@ -1,5 +1,6 @@
 package com.pcandroiddev.noteworthyapp.api
 
+import com.pcandroiddev.noteworthyapp.models.jwt.RefreshTokenRequest
 import com.pcandroiddev.noteworthyapp.models.user.UserRequest
 import com.pcandroiddev.noteworthyapp.models.user.UserResponse
 import retrofit2.Response
@@ -13,5 +14,6 @@ interface UserService {
 
     @POST("/users/login")
     suspend fun login(@Body userRequest: UserRequest): Response<UserResponse>
+
 
 }

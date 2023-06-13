@@ -17,11 +17,20 @@
     <string name="txt_login">Login</string>
     <string name="txt_error_message">%1$S*</string>
     <string name="note_title">Title</string>
-    <string name="txt_title_hint">Write your title</string>
+    <string name="txt_title_hint"><font size="24"><b>Title</b></font></string>
     <string name="txt_description">Description</string>
-    <string name="txt_description_hint">Write your description</string>
+    <string name="txt_description_hint"><font size="20"><b>Note</b></font></string>
     <string name="txt_submit">Submit</string>
     <string name="add_note">Add Note</string>
     <string name="add_new_note_button">Add New Note Button</string>
     <string name="add_images">Add Images</string>
+
+
+    <string-array name="priorities">
+        <item>LOW</item>
+        <item>MEDIUM</item>
+        <item>HIGH</item>
+    </string-array>
+
+
 </resources>
