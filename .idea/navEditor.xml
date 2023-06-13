@@ -14,7 +14,7 @@
                         <option name="myPosition">
                           <Point>
                             <option name="x" value="1436" />
-                            <option name="y" value="230" />
+                            <option name="y" value="232" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -79,11 +79,6 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_mainFragment_to_priorityModalBottomSheet">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
                           </map>
                         </option>
                       </LayoutPositions>
@@ -137,18 +132,6 @@
                               </value>
                             </entry>
                           </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="sortByPriorityModalBottomSheet">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="1080" />
-                            <option name="y" value="249" />
-                          </Point>
                         </option>
                       </LayoutPositions>
                     </value>

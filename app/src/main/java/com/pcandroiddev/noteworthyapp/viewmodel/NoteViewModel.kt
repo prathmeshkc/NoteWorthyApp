@@ -7,6 +7,7 @@ import com.bumptech.glide.RequestManager
 import com.pcandroiddev.noteworthyapp.adapters.ImageAdapter
 import com.pcandroiddev.noteworthyapp.adapters.NoteAdapter
 import com.pcandroiddev.noteworthyapp.models.image.DeleteImageResponse
+import com.pcandroiddev.noteworthyapp.models.jwt.RefreshTokenRequest
 import com.pcandroiddev.noteworthyapp.models.note.ImgUrl
 import com.pcandroiddev.noteworthyapp.models.note.NoteRequest
 import com.pcandroiddev.noteworthyapp.models.note.NoteResponse
@@ -23,8 +24,6 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
 
     val notesLiveData: LiveData<NetworkResults<List<NoteResponse>>> get() = noteRepository.notesLiveData
     val statusLiveData: LiveData<NetworkResults<String>> get() = noteRepository.statusLiveData
-
-    val shareByEmailLiveData: LiveData<NetworkResults<String>> get() = noteRepository.shareByEmailLiveData
 
     val uploadImageUrlLiveData: LiveData<NetworkResults<List<ImgUrl>>> get() = noteRepository.uploadImageUrlLiveData
     val deleteImageLiveData: LiveData<NetworkResults<DeleteImageResponse>> get() = noteRepository.deleteImageLiveData
@@ -75,11 +74,6 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
         }
     }
 
-    fun shareNoteByEmail(noteId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            noteRepository.shareNoteByEmail(noteId = noteId)
-        }
-    }
 
     fun uploadImage(multipartBodyPartList: List<MultipartBody.Part>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -92,6 +86,8 @@ class NoteViewModel @Inject constructor(private val noteRepository: NoteReposito
             noteRepository.deleteImage(publicId = publicId)
         }
     }
+
+
 
 
 }

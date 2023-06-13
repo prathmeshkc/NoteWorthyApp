@@ -3,7 +3,6 @@ package com.pcandroiddev.noteworthyapp.ui.fragments
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.annotation.MenuRes
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -163,6 +161,7 @@ class MainFragment : Fragment() {
                 when (menuItem.itemId) {
                     R.id.logout -> {
                         tokenManager.deleteToken()
+                        tokenManager.deleteUserEmail()
                         findNavController().navigate(R.id.action_mainFragment_to_loginFragment)
                         true
                     }

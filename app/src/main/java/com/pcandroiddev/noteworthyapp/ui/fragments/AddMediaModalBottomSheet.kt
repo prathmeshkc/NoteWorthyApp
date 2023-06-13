@@ -16,6 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pcandroiddev.noteworthyapp.databinding.ModalBottomSheetAddMediaBinding
 import com.pcandroiddev.noteworthyapp.util.Utils
 import com.pcandroiddev.noteworthyapp.viewmodel.NoteViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -25,6 +26,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@AndroidEntryPoint
 class AddMediaModalBottomSheet : BottomSheetDialogFragment() {
 
     private var _binding: ModalBottomSheetAddMediaBinding? = null
@@ -107,18 +109,18 @@ class AddMediaModalBottomSheet : BottomSheetDialogFragment() {
 
 
     private fun prepareFilePart(uri: Uri): MultipartBody.Part {
-        Log.d("NoteFragment", "prepareFilePart: ${uri.path}")
+        Log.d("AddMediaModalBottomSheet", "prepareFilePart: ${uri.path}")
         val filesDir = activity?.applicationContext?.filesDir
         val file = File(filesDir, "image_${getFileName(requireContext(), uri)}.png")
         file.createNewFile()
         val inputStream = activity?.applicationContext?.contentResolver?.openInputStream(uri)
-        Log.d("NoteFragment", "imageToMultiPart: $inputStream")
+        Log.d("AddMediaModalBottomSheet", "imageToMultiPart: $inputStream")
         val outputStream = FileOutputStream(file)
         inputStream!!.copyTo(outputStream)
         val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-        Log.d("NoteFragment", "RequestBody: $requestBody")
+        Log.d("AddMediaModalBottomSheet", "RequestBody: $requestBody")
         val part = MultipartBody.Part.createFormData("img_urls", file.name, requestBody)
-        Log.d("NoteFragment", "MultipartBody.Part: $part")
+        Log.d("AddMediaModalBottomSheet", "MultipartBody.Part: $part")
 
         return part
 

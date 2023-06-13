@@ -27,9 +27,7 @@ class UserRepository @Inject constructor(private val userService: UserService) {
         handleResponse(response)
     }
 
-    /**
-     * TODO: Handle 403 Forbidden response for refresh token
-     */
+
     private fun handleResponse(response: Response<UserResponse>) {
         if (response.isSuccessful && response.body() != null) {
             _userResponseLiveData.postValue(NetworkResults.Success(data = response.body()!!))

@@ -34,7 +34,7 @@ class RegisterFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
 
-        if(tokenManager.getToken() != null){
+        if (tokenManager.getToken() != null) {
             findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
         }
 
@@ -84,11 +84,14 @@ class RegisterFragment : Fragment() {
             when (it) {
                 is NetworkResults.Success -> {
                     tokenManager.saveToken(it.data!!.token)
+                    tokenManager.saveUserEmail(it.data.user.email)
                     findNavController().navigate(R.id.action_registerFragment_to_mainFragment)
                 }
+
                 is NetworkResults.Error -> {
                     binding.txtError.text = it.message
                 }
+
                 is NetworkResults.Loading -> {
                     binding.progressBar.isVisible = true
                 }

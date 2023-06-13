@@ -3,6 +3,7 @@ package com.pcandroiddev.noteworthyapp.di
 import android.content.Context
 import com.pcandroiddev.noteworthyapp.api.AuthInterceptor
 import com.pcandroiddev.noteworthyapp.api.NoteService
+import com.pcandroiddev.noteworthyapp.api.TokenService
 import com.pcandroiddev.noteworthyapp.api.UserService
 import com.pcandroiddev.noteworthyapp.util.Constants.BASE_URL
 import com.pcandroiddev.noteworthyapp.util.downloader.image.ImageDownloader
@@ -13,6 +14,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.Retrofit.Builder
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
@@ -40,6 +42,14 @@ class NetworkModule {
         return retrofitBuilder
             .build()
             .create(UserService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun providesTokenAPI(retrofitBuilder: Retrofit.Builder): TokenService {
+        return retrofitBuilder
+            .build()
+            .create(TokenService::class.java)
     }
 
     @Singleton

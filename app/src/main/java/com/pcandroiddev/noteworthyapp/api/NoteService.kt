@@ -22,7 +22,7 @@ interface NoteService {
 
     @GET("/notes/search")
     suspend fun searchNotes(
-        @Path("searchQuery") searchText: String
+        @Query("searchQuery") searchText: String
     ): Response<List<NoteResponse>>
 
     @POST("/notes/")
@@ -38,11 +38,6 @@ interface NoteService {
 
     @DELETE("/notes/{noteId}")
     suspend fun deleteNote(
-        @Path("noteId") noteId: String
-    ): Response<NoteResponse>
-
-    @POST("/notes/share/{noteId}")
-    suspend fun shareNoteByEmail(
         @Path("noteId") noteId: String
     ): Response<NoteResponse>
 

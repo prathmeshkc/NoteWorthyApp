@@ -39,8 +39,7 @@ class NoteFragment : Fragment() {
 
     private var note: NoteResponse? = null
 
-    //try changing this to by viewmodels<>() or detach VM in onDestroyView()
-    private val noteSharedViewModel by viewModels<NoteViewModel>()
+    private val noteSharedViewModel by activityViewModels<NoteViewModel>()
 
     private lateinit var imageAdapter: ImageAdapter
 
@@ -117,8 +116,6 @@ class NoteFragment : Fragment() {
                 }
                 Log.d("NoteFragment", "ImageUrlList: $imgUrlList")
             }
-
-
         }
 
         binding.bottomAppBar.setOnMenuItemClickListener { menuItem ->
@@ -132,7 +129,6 @@ class NoteFragment : Fragment() {
 
                 R.id.share_note -> {
                     note?.let {
-//                        noteSharedViewModel.shareNoteByEmail(noteId = (it.noteId).toString())
                         shareNote(it)
                     }
                     true
@@ -160,6 +156,12 @@ class NoteFragment : Fragment() {
             when (it) {
                 is NetworkResults.Success -> {
                     findNavController().popBackStack()
+                    Log.d("NoteFragment", "bindObservers/StatusLiveData: ${it.data}")
+                    Snackbar.make(
+                        requireView(),
+                        "Status Live Data Success ${it.data}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
 
                 is NetworkResults.Error -> {
@@ -173,24 +175,6 @@ class NoteFragment : Fragment() {
             }
         }
 
-        noteSharedViewModel.shareByEmailLiveData.observe(viewLifecycleOwner) {
-            binding.progressBar.isVisible = false
-            when (it) {
-                is NetworkResults.Success -> {
-                    Snackbar.make(requireView(), "Email Sent!", Snackbar.LENGTH_LONG)
-                        .setAction("OK") { }.show()
-                }
-
-                is NetworkResults.Error -> {
-                    Toast.makeText(requireContext(), it.message.toString(), Toast.LENGTH_SHORT)
-                        .show()
-                }
-
-                is NetworkResults.Loading -> {
-                    binding.progressBar.isVisible = true
-                }
-            }
-        }
 
         noteSharedViewModel.uploadImageUrlLiveData.observe(viewLifecycleOwner) {
             binding.progressBar.isVisible = false
@@ -357,7 +341,6 @@ class NoteFragment : Fragment() {
     override fun onDestroyView() {
         noteSharedViewModel.uploadImageUrlLiveData.removeObservers(viewLifecycleOwner)
         noteSharedViewModel.statusLiveData.removeObservers(viewLifecycleOwner)
-        noteSharedViewModel.shareByEmailLiveData.removeObservers(viewLifecycleOwner)
         noteSharedViewModel.deleteImageLiveData.removeObservers(viewLifecycleOwner)
         imageAdapter.submitList(emptyList())
         _binding = null
